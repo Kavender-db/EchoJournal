@@ -6,6 +6,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 from flask_cors import CORS
+import traceback
 
 # ---------------------------
 # Setup
@@ -97,18 +98,24 @@ def handle_file_upload():
             "analysis": analysis
         })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        # Return detailed error for debugging
+        error_trace = traceback.format_exc()
+        print(error_trace)
+        return jsonify({"error": str(e), "trace": error_trace}), 500
 
 # ---------------------------
 # Flask Routes
 # ---------------------------
+@app.route("/", methods=["POST"])
+def root_route():
+    return handle_file_upload()
+
 @app.route("/process", methods=["POST"])
 def process_audio():
     return handle_file_upload()
 
 @app.route("/upload", methods=["POST"])
 def upload_audio():
-    # Support Lovable frontend if it posts to /upload
     return handle_file_upload()
 
 # ---------------------------
