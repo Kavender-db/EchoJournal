@@ -5,7 +5,8 @@ from openai import OpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-from  flask_cors import CORS
+from flask_cors import CORS
+
 # ---------------------------
 # Setup
 # ---------------------------
@@ -18,7 +19,9 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
-CORS(app, origins = "https://preview--vocal-wellspring.lovable.app")
+# Allow Lovable frontend to access the backend
+CORS(app, origins="https://preview--vocal-wellspring.lovable.app")
+
 # ---------------------------
 # Step 1 - Transcribe Audio
 # ---------------------------
@@ -74,16 +77,15 @@ User Journal Entry (transcribed):
     return response.content
 
 # ---------------------------
-# Flask Routes
+# Helper function to handle audio upload
 # ---------------------------
-@app.route("/process", methods=["POST"])
-def process_audio():
+def handle_file_upload():
     if "file" not in request.files:
         return jsonify({"error": "No audio file uploaded"}), 400
-    
+
     file = request.files["file"]
-    file_path = os.path.join("uploads", file.filename)
     os.makedirs("uploads", exist_ok=True)
+    file_path = os.path.join("uploads", file.filename)
     file.save(file_path)
 
     try:
@@ -96,6 +98,18 @@ def process_audio():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ---------------------------
+# Flask Routes
+# ---------------------------
+@app.route("/process", methods=["POST"])
+def process_audio():
+    return handle_file_upload()
+
+@app.route("/upload", methods=["POST"])
+def upload_audio():
+    # Support Lovable frontend if it posts to /upload
+    return handle_file_upload()
 
 # ---------------------------
 # Run Flask App
