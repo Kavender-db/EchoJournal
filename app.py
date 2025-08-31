@@ -5,7 +5,7 @@ from openai import OpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-
+from  flask_cors import CORS
 # ---------------------------
 # Setup
 # ---------------------------
@@ -18,7 +18,7 @@ if not OPENAI_API_KEY:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = Flask(__name__)
-
+CORS(app, origins = "https://preview--vocal-wellspring.lovable.app")
 # ---------------------------
 # Step 1 - Transcribe Audio
 # ---------------------------
